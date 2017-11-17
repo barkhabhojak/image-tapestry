@@ -8,6 +8,7 @@ public class Main {
   	//ImageCreation image = new ImageCreation("resources/Michael_Day2_018.rgb",20000);
   	//ImageCreation image = new ImageCreation("resources/Apple.rgb",45000);
   	//ImageCreation image = new ImageCreation("resources/Disney.rgb",17500);
+ 
   	int threshold = 17500;
 	int width = 352;
 	int height = 288;
@@ -21,6 +22,8 @@ public class Main {
 		byteIndicies[b] = b * nBytes;
 	}
 	System.out.println("AVPlayer loading...");
+	//ImageCreation imageCreation = new ImageCreation("resources/Disney.rgb",threshold);
+
 	new AVPlayer("resources/Disney.rgb","resources/Disney.wav",byteIndicies,nFrames,threshold);
   }
 }

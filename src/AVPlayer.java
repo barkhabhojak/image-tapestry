@@ -61,6 +61,8 @@ public class AVPlayer implements MouseListener, MouseMotionListener {
 	public static String audioFileName;
 	public static String videoFileName;
 	private static ArrayList<Integer> sceneIndex;
+	private static ArrayList<Integer> upperBoundryValues;
+	private static ArrayList<Integer> lowerBoundryValues;
 	private static int newHeight;
 	private static int newWidth;
 
@@ -71,6 +73,8 @@ public class AVPlayer implements MouseListener, MouseMotionListener {
 		this.sceneIndex = imageCreation.getSceneIndex();
 		this.newHeight = imageCreation.getNewHeight();
 		this.newWidth = imageCreation.getNewWidth();
+		this.upperBoundryValues = imageCreation.getUpperBoundryValues();
+		this.lowerBoundryValues = imageCreation.getLowerBoundryValues();
 		// initialization for variables
 		this.byteIndicies = byteIndicies;
 		this.Frames = f;
@@ -217,15 +221,39 @@ public class AVPlayer implements MouseListener, MouseMotionListener {
 				JPanel slider = (JPanel) e.getSource();
 				fastForward = true;
 				System.out.println("x: " + e.getX() + " y: " + e.getY());
-				if (e.getY()*2 < (newHeight*2 - 30)/2) {
-					int index = ((e.getX()*2)/newWidth)*2;
+				if (e.getY()*2 < (newHeight*2 - 5)/2) {
+					int count = 0;
+					int index = 0;
+					while (count < upperBoundryValues.size()-1) {
+						if (upperBoundryValues.get(count) < e.getX()*2 && upperBoundryValues.get(count+1) > e.getX()*2) {
+							index = count;
+							break;
+						}
+						count++;
+					}
+					if (index == 0) {
+						index = upperBoundryValues.size() - 1;
+					}
+					index = index*2;
 					System.out.println("index even " + index);
 					int keyFrameIndex = sceneIndex.get(index);
 					System.out.println("keyFrameIndex even: " + keyFrameIndex);
 					currFrame = keyFrameIndex/(352*288*3);
 				}
 				else {
-					int index = ((((e.getX()*2)-newWidth/4)/newWidth)*2)+1;
+					int count = 0;
+					int index = 0;
+					while (count < lowerBoundryValues.size()-1) {
+						if (lowerBoundryValues.get(count) < e.getX()*2 && lowerBoundryValues.get(count+1) > e.getX()*2) {
+							index = count;
+							break;
+						}
+						count++;
+					}
+					if (index == 0) {
+						index = lowerBoundryValues.size()-1;
+					}
+					index = index*2 +1;
 					int keyFrameIndex = sceneIndex.get(index);
 					System.out.println("index odd " + index);
 					System.out.println("keyFrameIndex odd: " + keyFrameIndex);
