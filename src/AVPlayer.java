@@ -224,14 +224,16 @@ public class AVPlayer implements MouseListener, MouseMotionListener {
 				if (e.getY()*2 < (newHeight*2 - 5)/2) {
 					int count = 0;
 					int index = 0;
+					boolean check = false;
 					while (count < upperBoundryValues.size()-1) {
 						if (upperBoundryValues.get(count) < e.getX()*2 && upperBoundryValues.get(count+1) > e.getX()*2) {
 							index = count;
+							check = true;
 							break;
 						}
 						count++;
 					}
-					if (index == 0) {
+					if (index == 0 && check == false) {
 						index = upperBoundryValues.size() - 1;
 					}
 					index = index*2;
@@ -243,14 +245,23 @@ public class AVPlayer implements MouseListener, MouseMotionListener {
 				else {
 					int count = 0;
 					int index = 0;
-					while (count < lowerBoundryValues.size()-1) {
-						if (lowerBoundryValues.get(count) < e.getX()*2 && lowerBoundryValues.get(count+1) > e.getX()*2) {
-							index = count;
-							break;
-						}
-						count++;
+					boolean check = false;
+					boolean check2 = false;
+					if (e.getX() < newWidth/4) {
+						index = 0;
+						check = true;
 					}
-					if (index == 0) {
+					else {
+						while (count < lowerBoundryValues.size()-1) {
+							if (lowerBoundryValues.get(count) < e.getX()*2 && lowerBoundryValues.get(count+1) > e.getX()*2) {
+								index = count;
+								check2 = true;
+								break;
+							}
+							count++;
+						}
+					}
+					if (index == 0 && check == false && check2 == false) {
 						index = lowerBoundryValues.size()-1;
 					}
 					index = index*2 +1;
