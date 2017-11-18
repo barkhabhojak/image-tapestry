@@ -28,16 +28,17 @@ public class SeamCarver {
         }
 
         BufferedImage newImage = image;
-        while (numCol > 0) {
-            //System.out.println("numOfCol: " + numCol);
-            newImage = carveSeam(newImage, "vertical");
-            numCol--;
-        }
         
         while (numRow > 0) {
             //System.out.println("numofRow: " + numRow);
             newImage = carveSeam(newImage, "horizontal");
             numRow--;
+        }
+        
+        while (numCol > 0) {
+            //System.out.println("numOfCol: " + numCol);
+            newImage = carveSeam(newImage, "vertical");
+            numCol--;
         }
 
         try {
