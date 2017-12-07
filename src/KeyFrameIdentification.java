@@ -280,8 +280,8 @@ public class KeyFrameIdentification {
 
 
 	public void printIndexes() throws IOException {
-		System.out.println("final number of scenes " + this.sceneIndex.size());
-		System.out.println(this.sceneIndex);
+		System.out.println("======= final number of scenes " + this.sceneIndex.size()+" ==========");
+//		System.out.println(this.sceneIndex);
 	}
 
 	public void outputKeyFrames(byte[] bytes) throws IOException {

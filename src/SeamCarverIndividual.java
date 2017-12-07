@@ -15,46 +15,35 @@ import java.awt.FlowLayout;
 import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 
-public class SeamCarver {
+public class SeamCarverIndividual {
 
-    BufferedImage indexImage;
-
-	public SeamCarver (String imageFilePath, String outputImageFilePath, int numCol, int numRow,String indexFilePath, String outIndexPath) {
+	public SeamCarverIndividual (String imageFilePath, String outputImageFilePath, int numCol, int numRow) {
         // Open the input image
         BufferedImage image;
-        BufferedImage indexImage;
         try {
             image = ImageIO.read(new File(imageFilePath));
-            indexImage = ImageIO.read(new File(indexFilePath));
         } catch(IOException e) {
             System.err.println("Can't open " + imageFilePath);
             return;
         }
 
         BufferedImage newImage = image;
-        BufferedImage newIndex = indexImage;
-
-        while (numCol > 0) {
-            BufferedImage[] temp = new BufferedImage[2];
-            temp = carveSeam(newImage,newIndex,"vertical");
-            newImage = temp[0];
-            newIndex = temp[1];
-            numCol--;
-        }
         
         while (numRow > 0) {
-            BufferedImage[] temp = new BufferedImage[2];
-            temp = carveSeam(newImage,newIndex,"horizontal");
-            newImage = temp[0];
-            newIndex = temp[1];
+            //System.out.println("numofRow: " + numRow);
+            newImage = carveSeam(newImage, "horizontal");
             numRow--;
+        }
+        
+        while (numCol > 0) {
+            //System.out.println("numOfCol: " + numCol);
+            newImage = carveSeam(newImage, "vertical");
+            numCol--;
         }
 
         try {
             File outputfile = new File(outputImageFilePath);
             ImageIO.write(newImage, "png", outputfile);
-            File outputfileIndex = new File(outIndexPath);
-            ImageIO.write(newIndex, "png", outputfileIndex);            
         } catch (IOException e) {
             System.err.println("Trouble saving " + outputImageFilePath);
             return;
@@ -62,13 +51,21 @@ public class SeamCarver {
 
 	}
 
-
-	private BufferedImage[] carveSeam(BufferedImage image, BufferedImage indexImg, String direction) {
+	/**
+	 * carveSeam() takes an image and removes a single seam from that image in the
+	 * desired direction.
+	 *
+	 * @param image to be carved and direction of the seam (vertical / horizontal).
+	 * @return carved image.
+	 */
+	private BufferedImage carveSeam(BufferedImage image, String direction) {
+		// We need to compute the energy table, find and remove a seam.
 		BufferedImage newImage = null;
 		double[][] energyTable = computeEnergy(image);
 		int[][] seam = findSeam(energyTable, direction);
-		BufferedImage[] temp = removeSeam(image,indexImg, seam, direction);
-		return temp;
+		newImage = removeSeam(image, seam, direction);
+
+		return newImage;
 	}
 
 	/**
@@ -339,6 +336,13 @@ public class SeamCarver {
         return seam;
 	}
 
+	/**
+	 * findSeam() finds a seam given an energy table and a direction. The seam is
+	 * the path from bottom to top or left to right with minimum total energy.
+	 *
+	 * @param energy table (double[][]) and direction (vertical / horizontal).
+	 * @return seam (int[x or y][x, y]).
+	 */
 	private int[][] findSeam(double[][] energyTable, String direction) {
         int[][] seam = new int[energyTable[0].length][2];
 		if (direction.equals("vertical")) {
@@ -353,25 +357,32 @@ public class SeamCarver {
 		return seam;
 	}
 
-
-	private BufferedImage[] removeSeam(BufferedImage image,BufferedImage indexImg, int[][] seam, String direction) {
+	/**
+	 * removeSeam() removes a given seam from an image.
+	 *
+	 * @param image, seam[][] and direction (vertical / horizontal).
+	 * @return carved image.
+	 */
+	private BufferedImage removeSeam(BufferedImage image, int[][] seam, String direction) {
 		BufferedImage newImage;
-        BufferedImage newIndex;
 		int width = image.getWidth();
         int height = image.getHeight();
 		if (direction.equals("vertical")) {
 			// vertical seam.
 			newImage = new BufferedImage(width - 1, height, BufferedImage.TYPE_INT_ARGB);
-            newIndex = new BufferedImage(width - 1, height, BufferedImage.TYPE_INT_ARGB);
 		} else {
 			// horizontal seam.
 			newImage = new BufferedImage(width, height - 1, BufferedImage.TYPE_INT_ARGB);
-            newIndex = new BufferedImage(width, height - 1, BufferedImage.TYPE_INT_ARGB);
 		}
+
+		// Loops over ever pixel in the original image and copies them over.
+		// Do not copy over the pixels in the seam.
 		if (direction.equals("vertical")) {
+			// vertical seam.
 			for (int y = 0; y < height; y++) {
 				boolean shift = false;
 	            for (int x = 0; x < width; x++) {
+	            	// Simple loop to check if the pixel is part of the seam or not.
 	            	boolean inSeam = false;
             		if ((seam[y][0] == x) && (seam[y][1] == y)) {
             			inSeam = true;
@@ -379,14 +390,12 @@ public class SeamCarver {
             		}
 
 	            	if (!inSeam) {
-	            		int color = image.getRGB(x,y);
-                        int fr = indexImg.getRGB(x,y);
+	            		// pixel not part of the seam, so we add it.
+	            		int color = image.getRGB(x, y);
 	            		if (shift) {
 	            			newImage.setRGB(x - 1, y, color);
-                            newIndex.setRGB(x - 1, y, fr);
 	            		} else {
 		            		newImage.setRGB(x, y, color);
-                            newIndex.setRGB(x, y, fr);
 		            	}
 	            	}
 	            }
@@ -403,25 +412,20 @@ public class SeamCarver {
             			shift = true;
             		}
 
+	            	// this does not work, as we might need to put it at either x-1 or y-1.
 	            	if (!inSeam) {
+	            		// pixel not part of the seam, so we add it.
 	            		if (shift) {
 	            			newImage.setRGB(x, y - 1, image.getRGB(x, y));
-                            newIndex.setRGB(x, y - 1, indexImg.getRGB(x, y));
 	            		} else {
 		            		newImage.setRGB(x, y, image.getRGB(x, y));
-                            newIndex.setRGB(x, y, indexImg.getRGB(x, y));
 		            	}
 	            	}
 	            }
 	        }
 	    }
 
-        BufferedImage[] temp = new BufferedImage[2];
-        temp[0] = newImage;
-        temp[1] = newIndex;
-
-		return temp;
+		return newImage;
 	}
 
 }
-

@@ -13,8 +13,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class PlaySound implements LineListener {
-//	private static final int SECONDS_IN_HOUR = 60 * 60;
-//	private static final int SECONDS_IN_MINUTE = 60;
 	int frames;
 
 	/**
@@ -59,43 +57,6 @@ public class PlaySound implements LineListener {
 		audioClip.addLineListener(this);
 		audioClip.open(audioStream);
 	}
-
-//	public long getClipSecondLength() {
-//		return audioClip.getMicrosecondLength() / 1000000;
-//	}
-
-//	public String getClipLengthString() {
-//		String length = "";
-//		long hour = 0;
-//		long minute = 0;
-//		long seconds = audioClip.getMicrosecondLength() / 1000000;
-//
-//		System.out.println(seconds);
-//
-//		if (seconds >= SECONDS_IN_HOUR) {
-//			hour = seconds / SECONDS_IN_HOUR;
-//			length = String.format("%02d:", hour);
-//		} else {
-//			length += "00:";
-//		}
-//
-//		minute = seconds - hour * SECONDS_IN_HOUR;
-//		if (minute >= SECONDS_IN_MINUTE) {
-//			minute = minute / SECONDS_IN_MINUTE;
-//			length += String.format("%02d:", minute);
-//
-//		} else {
-//			minute = 0;
-//			length += "00:";
-//		}
-//
-//		long second = seconds - hour * SECONDS_IN_HOUR - minute * SECONDS_IN_MINUTE;
-//
-//		length += String.format("%02d", second);
-//
-//		return length;
-//	}
-
 	/**
 	 * Play a given audio file.
 	 * 
@@ -121,7 +82,6 @@ public class PlaySound implements LineListener {
 					this.frames = frames*4410;
 					audioClip.setFramePosition(frames);
 					fastForward = false;
-//					audioClip.start();
 				}
 				if (isStopped) {
 					audioClip.stop();
